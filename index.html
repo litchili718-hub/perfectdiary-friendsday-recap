@@ -240,9 +240,33 @@ html,
 .footer{text-align:center;padding:20px;color:#8da0c4;font-size:11px;margin-top:8px}
 
 @media(max-width:1200px){.chart-grid{grid-template-columns:1fr}}
+/* ===== 密码门 ===== */
+.pw-gate{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:#0f172a;display:flex;align-items:center;justify-content:center}
+.pw-gate.hidden{display:none}
+.pw-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:44px 36px;text-align:center;max-width:360px;width:90%}
+.pw-box .pw-icon{font-size:36px;margin-bottom:10px;display:block}
+.pw-box h2{color:#f1f5f9;font-size:18px;font-weight:700;margin-bottom:4px}
+.pw-box .pw-sub{color:#94a3b8;font-size:13px;margin-bottom:22px}
+.pw-box input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#f1f5f9;font-size:15px;text-align:center;outline:none;letter-spacing:4px;box-sizing:border-box;font-family:monospace}
+.pw-box input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.pw-box .pw-btn{margin-top:14px;padding:10px 40px;border-radius:10px;background:#3b82f6;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;display:inline-block}
+.pw-box .pw-btn:hover{background:#2563eb}
+.pw-box .pw-err{color:#f87171;font-size:12px;margin-top:10px;min-height:18px}
 </style>
 </head>
 <body>
+
+<!-- ═══════ 密码门 ═══════ -->
+<div class="pw-gate" id="pwGate">
+  <div class="pw-box">
+    <span class="pw-icon">🔐</span>
+    <h2>访问验证</h2>
+    <p class="pw-sub">请输入密码查看报告</p>
+    <input type="password" id="pwInput" placeholder="请输入密码" autofocus>
+    <br><button class="pw-btn" id="pwBtn">确 认</button>
+    <div class="pw-err" id="pwErr"></div>
+  </div>
+</div>
 
 <!-- ═══════ 全局导航 ═══════ -->
 <nav class="global-nav" id="globalNav">
@@ -1250,6 +1274,38 @@ window.addEventListener('resize', () => {
         p.style.display = (p.getAttribute('data-r') === r) ? 'block' : 'none';
       });
     });
+  });
+})();
+</script>
+
+<!-- ═══════ 密码门逻辑 ═══════ -->
+<script>
+(function(){
+  var PW = 'wm2026';
+  var gate = document.getElementById('pwGate');
+  var input = document.getElementById('pwInput');
+  var btn = document.getElementById('pwBtn');
+  var err = document.getElementById('pwErr');
+
+  if (sessionStorage.getItem('_pw_ok') === '1') {
+    gate.classList.add('hidden');
+    return;
+  }
+
+  function check() {
+    if (input.value === PW) {
+      sessionStorage.setItem('_pw_ok', '1');
+      gate.classList.add('hidden');
+    } else {
+      err.textContent = '密码错误，请重试';
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', check);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') check();
   });
 })();
 </script>
